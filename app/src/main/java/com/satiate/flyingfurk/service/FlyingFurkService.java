@@ -4,12 +4,16 @@ import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PixelFormat;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.satiate.flyingfurk.R;
@@ -27,6 +31,9 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
     private static final int NOTIFICATION_ID = 9083150;
     private FloatingViewManager mFloatingViewManager;
 
+    private WindowManager windowManager;
+    boolean mHasDoubleClicked = false;
+    long lastPressTime;
 
     @Nullable
     @Override
@@ -58,7 +65,66 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
         mFloatingViewManager.setActionTrashIconImage(R.mipmap.ic_launcher);
         final FloatingViewManager.Options options = new FloatingViewManager.Options();
         options.overMargin = (int) (16 * getScreenMetrics(FlyingFurkService.this).density);
-        mFloatingViewManager.addViewToWindow(iconView, options);
+
+        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+
+
+        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT);
+
+        params.gravity = Gravity.TOP | Gravity.LEFT;
+        params.x = 0;
+        params.y = 100;
+
+//        mFloatingViewManager.addViewToWindow(iconView, options);
+
+        windowManager.addView(iconView, params);
+
+        iconView.setOnTouchListener(new View.OnTouchListener() {
+            private WindowManager.LayoutParams paramsF = params;
+            private int initialX;
+            private int initialY;
+            private float initialTouchX;
+            private float initialTouchY;
+
+            @Override public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+
+                        // Get current time in nano seconds.
+                        long pressTime = System.currentTimeMillis();
+
+
+                        // If double click...
+                        if (pressTime - lastPressTime <= 300) {
+                            createNotification();
+                            FlyingFurkService.this.stopSelf();
+                            mHasDoubleClicked = true;
+                        }
+                        else {     // If not double click....
+                            mHasDoubleClicked = false;
+                        }
+                        lastPressTime = pressTime;
+                        initialX = paramsF.x;
+                        initialY = paramsF.y;
+                        initialTouchX = event.getRawX();
+                        initialTouchY = event.getRawY();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        paramsF.x = initialX + (int) (event.getRawX() - initialTouchX);
+                        paramsF.y = initialY + (int) (event.getRawY() - initialTouchY);
+                        windowManager.updateViewLayout(iconView, paramsF);
+                        break;
+                }
+                return false;
+            }
+        });
 
         startForeground(NOTIFICATION_ID, createNotification());
 

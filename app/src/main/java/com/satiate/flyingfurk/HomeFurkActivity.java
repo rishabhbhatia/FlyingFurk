@@ -49,11 +49,13 @@ public class HomeFurkActivity extends AppCompatActivity {
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
             homeFurkActivity.startService(new Intent(homeFurkActivity, FlyingFurkService.class));
+            finish();
             return;
         }
 
         if (Settings.canDrawOverlays(homeFurkActivity)) {
             homeFurkActivity.startService(new Intent(homeFurkActivity, FlyingFurkService.class));
+            finish();
             return;
         }
 
