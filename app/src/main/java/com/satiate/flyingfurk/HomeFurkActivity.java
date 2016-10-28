@@ -31,10 +31,11 @@ public class HomeFurkActivity extends AppCompatActivity {
 
     private void checkFurkPermission()
     {
-        String permission[] = { Manifest.permission.SYSTEM_ALERT_WINDOW };
+        String permission[] = { Manifest.permission.SYSTEM_ALERT_WINDOW, Manifest.permission.INTERNET };
 
         if(ActivityCompat.checkSelfPermission(HomeFurkActivity.this, Manifest.permission.SYSTEM_ALERT_WINDOW)
-                != PackageManager.PERMISSION_GRANTED)
+                != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(HomeFurkActivity.this,
+                Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
         {
             ActivityCompat.requestPermissions(HomeFurkActivity.this, permission, REQUEST_PERMISSION);
         }else
