@@ -314,6 +314,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                     sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     sendIntent.setPackage("com.facebook.orca");
+                    //TODO text doesn't work
                     sendIntent.putExtra(Intent.EXTRA_TEXT, yesNoMaybeFurk.getAnswer());
                     sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
                     sendIntent.setType("image/gif");
