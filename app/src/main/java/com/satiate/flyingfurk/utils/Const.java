@@ -18,4 +18,9 @@ public class Const {
     //API TAGS
     public static final String FURK_YESNOMAYBE_API_TAG = "YESNOMAYBETAG";
 
+    //API KEYS
+    public static final String FURK_YESNOMAYBE_ANSWER = "answer";
+    public static final String FURK_YESNOMAYBE_FORCED = "forced";
+    public static final String FURK_YESNOMAYBE_IMAGE = "image";
+
 }

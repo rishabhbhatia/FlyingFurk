@@ -4,7 +4,7 @@ package com.satiate.flyingfurk.models;
  * Created by Rishabh Bhatia on 29/10/16.
  */
 
-public class YesNoMaybeFurkResponse {
+public class YesNoMaybeFurk {
 
     private String answer;
     private boolean forced;

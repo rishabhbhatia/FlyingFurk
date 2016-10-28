@@ -3,8 +3,12 @@ package com.satiate.flyingfurk.service;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -25,16 +29,25 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.gif.GifDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SizeReadyCallback;
+import com.bumptech.glide.request.target.Target;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.satiate.flyingfurk.FurkApplication;
 import com.satiate.flyingfurk.R;
+import com.satiate.flyingfurk.models.YesNoMaybeFurk;
 import com.satiate.flyingfurk.network.VolleyErrorHelper;
-import com.satiate.flyingfurk.network.VolleyUtils;
 import com.satiate.flyingfurk.utils.Const;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -213,6 +226,34 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                         public void onResponse(JSONObject response) {
 
                             Log.d(Const.TAG, "got response: "+response.toString());
+
+                            switch (tag)
+                            {
+                                case Const.FURK_YESNOMAYBE_API_TAG:
+                                    YesNoMaybeFurk yesNoMaybeFurk = new YesNoMaybeFurk();
+                                    try {
+                                        if(response.has(Const.FURK_YESNOMAYBE_ANSWER) && response.getString(Const.FURK_YESNOMAYBE_ANSWER) != null)
+                                        {
+                                            yesNoMaybeFurk.setAnswer(response.getString(Const.FURK_YESNOMAYBE_ANSWER));
+                                        }
+
+                                        if(response.has(Const.FURK_YESNOMAYBE_FORCED))
+                                        {
+                                            yesNoMaybeFurk.setForced(response.getBoolean(Const.FURK_YESNOMAYBE_FORCED));
+                                        }
+
+                                        if(response.has(Const.FURK_YESNOMAYBE_IMAGE) &&
+                                                response.getString(Const.FURK_YESNOMAYBE_IMAGE) != null)
+                                        {
+                                            yesNoMaybeFurk.setImage(response.getString(Const.FURK_YESNOMAYBE_IMAGE));
+                                        }
+
+                                        sendMessage(yesNoMaybeFurk);
+                                    }catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    break;
+                            }
                             response = null;
                         }
                     }, new Response.ErrorListener() {
@@ -243,6 +284,90 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
         }catch (Throwable e){
             e.printStackTrace();
         }
+    }
+
+    private void sendMessage(final YesNoMaybeFurk yesNoMaybeFurk) {
+//                Uri uri = Uri.parse("https://static.pexels.com/photos/87646/horsehead-nebula-dark-nebula-constellation-orion-87646.jpeg");
+
+        Glide.with(FlyingFurkService.this).load(yesNoMaybeFurk.getImage()).asGif().listener(new RequestListener<String, GifDrawable>() {
+            @Override
+            public boolean onException(Exception e, String model, Target<GifDrawable> target, boolean isFirstResource) {
+                e.printStackTrace();
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(GifDrawable resource, String model, Target<GifDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                Log.d(Const.TAG, "we got gif");
+
+                try {
+                    File file = new File(getApplicationContext().getCacheDir(), "test" + ".gif");
+
+                    FileOutputStream fOut = new FileOutputStream(file);
+                    fOut.write(resource.getData());
+                    fOut.close();
+
+                    file.setReadable(true, false);
+
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    sendIntent.setPackage("com.facebook.orca");
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, yesNoMaybeFurk.getAnswer());
+                    sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+                    sendIntent.setType("image/gif");
+                    FlyingFurkService.this.startActivity(sendIntent);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+                return false;
+            }
+        }).into(200, 200);
+
+       /* try {
+            File file = new File(getApplicationContext().getCacheDir(), "test" + ".gif");
+
+            FileOutputStream fOut = new FileOutputStream(file);
+            fOut.write();
+            fOut.close();
+
+            file.setReadable(true, false);
+
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            sendIntent.setPackage("com.facebook.orca");
+            sendIntent.putExtra(Intent.EXTRA_TEXT, yesNoMaybeFurk.getAnswer());
+            sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+            sendIntent.setType("image/jpeg");
+            FlyingFurkService.this.startActivity(sendIntent);
+        }catch (Exception e){
+            e.printStackTrace();
+        }*/
+    }
+
+    private String saveToInternalStorage(Bitmap bitmapImage)
+    {
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        File mypath=new File(directory,"profile.jpg");
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return directory.getAbsolutePath();
     }
 
 }
