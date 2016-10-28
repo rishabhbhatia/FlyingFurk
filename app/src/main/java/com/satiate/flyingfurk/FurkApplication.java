@@ -1,17 +1,15 @@
 package com.satiate.flyingfurk;
 
 import android.app.Application;
-import android.util.Log;
+import android.text.TextUtils;
 
-import com.satiate.flyingfurk.retrofit.FurkNetworkService;
-import com.satiate.flyingfurk.utils.Const;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.Volley;
+import com.satiate.flyingfurk.utils.LruBitmapCache;
 
-import java.util.concurrent.TimeUnit;
-
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import static com.satiate.flyingfurk.utils.Const.TAG;
 
 /**
  * Created by Rishabh Bhatia on 28/10/16.
@@ -19,28 +17,55 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class FurkApplication extends Application {
 
-    public static Retrofit retrofit = null;
-    public static FurkNetworkService furkNetworkService = null;
-    public static OkHttpClient.Builder httpClient = null;
+
+    private RequestQueue mRequestQueue;
+    private ImageLoader mImageLoader;
+    private static FurkApplication furkApplication;
+
 
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-        httpClient = new OkHttpClient.Builder();
-        httpClient.readTimeout(Const.RETROFIT_NETWORK_CALL_TIMEOUT, TimeUnit.SECONDS);
-        httpClient.writeTimeout(Const.RETROFIT_NETWORK_CALL_TIMEOUT, TimeUnit.SECONDS);
-        httpClient.addInterceptor(logging);
+        furkApplication = this;
+    }
 
-        retrofit = new Retrofit.Builder()
-                .baseUrl(Const.NETWORK_BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(httpClient.build())
-                .build();
+    public static synchronized FurkApplication getInstance() {
+        return furkApplication;
+    }
 
-        furkNetworkService = retrofit.create(FurkNetworkService.class);
+
+    public RequestQueue getRequestQueue() {
+        if (mRequestQueue == null) {
+            mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+        }
+
+        return mRequestQueue;
+    }
+
+    public ImageLoader getImageLoader() {
+        getRequestQueue();
+        if (mImageLoader == null) {
+            mImageLoader = new ImageLoader(this.mRequestQueue,
+                    new LruBitmapCache());
+        }
+        return this.mImageLoader;
+    }
+
+    public <T> void addToRequestQueue(Request<T> req, String tag) {
+        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
+        getRequestQueue().add(req);
+    }
+
+    public <T> void addToRequestQueue(Request<T> req) {
+        req.setTag(TAG);
+        getRequestQueue().add(req);
+    }
+
+    public void cancelPendingRequests(Object tag) {
+        if (mRequestQueue != null) {
+            mRequestQueue.cancelAll(tag);
+        }
     }
 }

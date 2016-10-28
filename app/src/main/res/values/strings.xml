@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">FlyingFurk</string>
+
+    <!-- VOLLEY ERROR CODES -->
+    <string name="no_network_connection" translatable="false">No network connection found</string>
+    <string name="generic_server_down" translatable="false">There was some problem.Please try again later</string>
+    <string name="generic_server_timeout" translatable="false">There was some problem.Please try again later</string>
+    <string name="generic_error" translatable="false">There was some problem.Please try again later</string>
+    <string name="parsing_failed" translatable="false">Parsing Failure</string>
+    <string name="auth_failed" translatable="false">Authenticate problem.Please try again later</string>
+    <string name="no_internet">Sorry no active internet connection found. Please try again later.</string>
+
 </resources>

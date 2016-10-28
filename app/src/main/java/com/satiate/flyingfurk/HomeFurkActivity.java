@@ -95,5 +95,4 @@ public class HomeFurkActivity extends AppCompatActivity {
             showFurkingWidget(HomeFurkActivity.this, true);
         }
     }
-
 }

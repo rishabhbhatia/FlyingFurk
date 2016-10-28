@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -18,9 +19,24 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.satiate.flyingfurk.FurkApplication;
 import com.satiate.flyingfurk.R;
+import com.satiate.flyingfurk.network.VolleyErrorHelper;
+import com.satiate.flyingfurk.network.VolleyUtils;
+import com.satiate.flyingfurk.utils.Const;
+
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import jp.co.recruit_lifestyle.android.floatingview.FloatingViewListener;
 import jp.co.recruit_lifestyle.android.floatingview.FloatingViewManager;
@@ -65,6 +81,8 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                 YoYo.with(Techniques.Shake)
                         .duration(3200)
                         .playOn(iconView);
+
+                makeFurkRequest();
             }
         });
 
@@ -143,6 +161,12 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
         return START_REDELIVER_INTENT;
     }
 
+    private void makeFurkRequest()
+    {
+        makeJsonObjectRequest(FlyingFurkService.this, Request.Method.GET, Const.FURK_YESNOMAYBE_API,
+                Const.FURK_YESNOMAYBE_API_TAG, null, null);
+    }
+
     private Notification createNotification() {
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setWhen(System.currentTimeMillis());
@@ -175,4 +199,50 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
     public void onFinishFloatingView() {
         stopSelf();
     }
+
+    public void makeJsonObjectRequest(final Context context, int method, final String reqUrl, final String tag,
+                                      final HashMap<String, String> params, JSONObject jsonObject)
+    {
+        try {
+
+            JsonObjectRequest jsonObjReq = new JsonObjectRequest(method,
+                    reqUrl, jsonObject,
+                    new Response.Listener<JSONObject>() {
+
+                        @Override
+                        public void onResponse(JSONObject response) {
+
+                            Log.d(Const.TAG, "got response: "+response.toString());
+                            response = null;
+                        }
+                    }, new Response.ErrorListener() {
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    VolleyLog.d(Const.TAG, "Error: " + VolleyErrorHelper.getMessage(error, context));
+                    error = null;
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> headerMap = new HashMap<>();
+                    return headerMap;
+                }
+
+                @Override
+                protected Map<String, String> getParams() {
+                    return params;
+                }
+            };
+
+//                jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(2000, 0, 0f));
+
+            // Adding request to request queue
+            FurkApplication.getInstance().addToRequestQueue(jsonObjReq, tag);
+
+        }catch (Throwable e){
+            e.printStackTrace();
+        }
+    }
+
 }
