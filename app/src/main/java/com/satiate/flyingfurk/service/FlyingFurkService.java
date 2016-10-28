@@ -14,8 +14,12 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.satiate.flyingfurk.R;
 
 import jp.co.recruit_lifestyle.android.floatingview.FloatingViewListener;
@@ -50,14 +54,19 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 
 
         final LayoutInflater inflater = LayoutInflater.from(this);
-        final ImageView iconView = (ImageView) inflater.inflate(R.layout.flying_furk, null, false);
+        final LinearLayout linearLayout = (LinearLayout) inflater.inflate(R.layout.flying_furk, null, false);
+        final ImageView iconView = (ImageView) linearLayout.findViewById(R.id.iv_throw_a_f);
         iconView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendAFurk();
+//                sendAFurk();
+
+                iconView.startAnimation(AnimationUtils.loadAnimation(FlyingFurkService.this, R.anim.rotate));
+                YoYo.with(Techniques.Shake)
+                        .duration(3200)
+                        .playOn(iconView);
             }
         });
-
 
         mFloatingViewManager = new FloatingViewManager(this, this);
         mFloatingViewManager.setFixedTrashIconImage(R.mipmap.ic_launcher);
@@ -82,16 +91,17 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 
 //        mFloatingViewManager.addViewToWindow(iconView, options);
 
-        windowManager.addView(iconView, params);
+        windowManager.addView(linearLayout, params);
 
-        iconView.setOnTouchListener(new View.OnTouchListener() {
+        View.OnTouchListener touchListener = new View.OnTouchListener() {
             private WindowManager.LayoutParams paramsF = params;
             private int initialX;
             private int initialY;
             private float initialTouchX;
             private float initialTouchY;
 
-            @Override public boolean onTouch(View v, MotionEvent event) {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
 
@@ -104,8 +114,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                             createNotification();
                             FlyingFurkService.this.stopSelf();
                             mHasDoubleClicked = true;
-                        }
-                        else {     // If not double click....
+                        } else {     // If not double click....
                             mHasDoubleClicked = false;
                         }
                         lastPressTime = pressTime;
@@ -119,12 +128,15 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                     case MotionEvent.ACTION_MOVE:
                         paramsF.x = initialX + (int) (event.getRawX() - initialTouchX);
                         paramsF.y = initialY + (int) (event.getRawY() - initialTouchY);
-                        windowManager.updateViewLayout(iconView, paramsF);
+                        windowManager.updateViewLayout(linearLayout, paramsF);
                         break;
                 }
                 return false;
             }
-        });
+        };
+
+        linearLayout.setOnTouchListener(touchListener);
+        iconView.setOnTouchListener(touchListener);
 
         startForeground(NOTIFICATION_ID, createNotification());
 
