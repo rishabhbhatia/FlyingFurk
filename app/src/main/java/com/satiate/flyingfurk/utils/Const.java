@@ -85,11 +85,22 @@ public class Const {
     public static final String FURK_GIPHY_RANDOM_API = "v1/gifs/random?api_key=dc6zaTOxFJmzC";
 
 
+    public static final String FURK_CAT_RANDOM_JPG_API = "http://thecatapi.com/api/images/get?format=xml&results_per_" +
+            "page=1&type=jpg&api_key="+Const.THE_CAT_API_KEY;
+    public static final String FURK_CAT_RANDOM_PNG_API = "http://thecatapi.com/api/images/get?format=xml&results_per_" +
+            "page=1&type=png&api_key="+Const.THE_CAT_API_KEY;
+    public static final String FURK_CAT_RANDOM_GIF_API = "http://thecatapi.com/api/images/get?format=xml&results_per_" +
+            "page=1&type=gif&api_key="+Const.THE_CAT_API_KEY;
+
+
     //API TAGS
     public static final String FURK_YESNOMAYBE_API_TAG = "YESNOMAYBETAG";
     public static final String FURK_FURKOFF_TAG = "FURKOFF";
     public static final String FURK_DRUMPF_TAG = "DRUMPF";
     public static final String FURK_GIPHY_TAG = "GIPHY";
+    public static final String FURK_CAT_JPG_TAG = "CAT_JPG";
+    public static final String FURK_CAT_PNG_TAG = "CAT_PNG";
+    public static final String FURK_CAT_GIF_TAG = "CAT_GIF";
 
     //API RESPONSE KEYS
 
@@ -107,6 +118,12 @@ public class Const {
     public static final String FURK_GIPHY_METADATA_STATUS = "status";
     public static final String FURK_GIPHY_METADATA_MSG = "msg";
     public static final String FURK_GIPHY_DATA_IMAGE_URL = "image_url";
+
+    public static final String FURK_CAT_RESPONSE = "response";
+    public static final String FURK_CAT_DATA = "data";
+    public static final String FURK_CAT_IMAGES = "images";
+    public static final String FURK_CAT_IMAGE = "image";
+    public static final String FURK_CAT_URL = "url";
 
 
 

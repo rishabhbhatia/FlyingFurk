@@ -29,6 +29,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.RequestListener;
@@ -45,9 +46,11 @@ import com.satiate.flyingfurk.models.GiphyMetadata;
 import com.satiate.flyingfurk.models.YesNoMaybeFurk;
 import com.satiate.flyingfurk.network.VolleyErrorHelper;
 import com.satiate.flyingfurk.utils.Const;
+import com.satiate.flyingfurk.utils.FurkUtility;
 
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -112,7 +115,8 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 //                makeFurkRequest();
 //                makeRandomFurkOffRequest();
 //                makeRandomDrumpfQuoteRequest();
-                makeRandomGiphyRequest();
+//                makeRandomGiphyRequest();
+                makeRandomCatJPGRequest();
             }
         });
 
@@ -285,6 +289,25 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 
         makeJsonObjectRequest(FlyingFurkService.this, Request.Method.GET, Const.FURK_GIPHY_BASE_API+Const.FURK_GIPHY_RANDOM_API,
                 Const.FURK_GIPHY_TAG, headers, null);
+    }
+
+
+    private void makeRandomCatJPGRequest()
+    {
+        makeStringRequest(FlyingFurkService.this, Request.Method.GET, Const.FURK_CAT_RANDOM_JPG_API,
+                Const.FURK_CAT_JPG_TAG, new HashMap<String, String>());
+    }
+
+    private void makeRandomCatPNGRequest()
+    {
+        makeStringRequest(FlyingFurkService.this, Request.Method.GET, Const.FURK_CAT_RANDOM_PNG_API,
+                Const.FURK_CAT_PNG_TAG, new HashMap<String, String>());
+    }
+
+    private void makeRandomCatGIFRequest()
+    {
+        makeStringRequest(FlyingFurkService.this, Request.Method.GET, Const.FURK_CAT_RANDOM_PNG_API,
+                Const.FURK_CAT_GIF_TAG, new HashMap<String, String>());
     }
 
     private Notification createNotification() {
@@ -462,6 +485,88 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
         }
     }
 
+    public void makeStringRequest(final Context context, int method, final String reqUrl, final String tag,
+                                      final HashMap<String, String> headers)
+    {
+        StringRequest request = new StringRequest(method, reqUrl,
+                new Response.Listener<String>()
+                {
+                    @Override
+                    public void onResponse(String response) {
+
+                        JSONObject responseObject = FurkUtility.convertXmlToJson(response);
+                        Log.d(Const.TAG, responseObject.toString());
+
+                        switch (tag) {
+                            case Const.FURK_CAT_JPG_TAG:
+                                try {
+                                    String url = getCatResponseUrl(responseObject);
+                                    if(url != null)
+                                    {
+                                        sendImageFurk(url);
+                                    }
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case Const.FURK_CAT_PNG_TAG:
+                                try {
+
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case Const.FURK_CAT_GIF_TAG:
+                                try {
+
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                                break;
+                        }
+                    }
+
+                    private String getCatResponseUrl(JSONObject responseObject) {
+                        String url = null;
+
+                        try {
+                            if (responseObject.has(Const.FURK_CAT_RESPONSE) && responseObject.get(Const.FURK_CAT_RESPONSE) != null)
+                            {
+                                JSONObject respObject = responseObject.getJSONObject(Const.FURK_CAT_RESPONSE);
+                                JSONObject imageObject = respObject.getJSONObject(Const.FURK_CAT_DATA).getJSONObject(Const.FURK_CAT_IMAGES).
+                                        getJSONObject(Const.FURK_CAT_IMAGE);
+                                url = imageObject.getString(Const.FURK_CAT_URL);
+                            }
+
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                        return url;
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // handle error response
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams() {
+                return headers;
+            }
+        };
+
+        request.setRetryPolicy(new DefaultRetryPolicy(5000, 0, 0f));
+
+        FurkApplication.getInstance().addToRequestQueue(request, tag);
+    }
+
     private void sendTextFurk(String furk)
     {
         Intent sendIntent = new Intent();
@@ -471,6 +576,46 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
         sendIntent.putExtra(Intent.EXTRA_TEXT, furk);
         sendIntent.setType("text/plain");
         FlyingFurkService.this.startActivity(sendIntent);
+    }
+
+    private void sendImageFurk(final String imageUrl) {
+
+        Glide.with(FlyingFurkService.this).load(imageUrl).asBitmap().listener(new RequestListener<String, Bitmap>() {
+            @Override
+            public boolean onException(Exception e, String model, Target<Bitmap> target, boolean isFirstResource) {
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
+
+                try {
+                    File file = new File(getApplicationContext().getCacheDir(), "test" + ".gif");
+
+                    FileOutputStream fOut = new FileOutputStream(file);
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    resource.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    fOut.write(stream.toByteArray());
+                    fOut.close();
+
+                    file.setReadable(true, false);
+
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    sendIntent.setPackage("com.whatsapp");
+                    sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+                    sendIntent.setType("image/jpeg");
+                    FlyingFurkService.this.startActivity(sendIntent);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+                return false;
+            }
+        }).into(200, 200);
+
     }
 
     private void sendGifFurk(final String gifFurk) {
