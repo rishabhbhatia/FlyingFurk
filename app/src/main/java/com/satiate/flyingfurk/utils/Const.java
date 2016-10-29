@@ -81,6 +81,7 @@ public class Const {
     //API TAGS
     public static final String FURK_YESNOMAYBE_API_TAG = "YESNOMAYBETAG";
     public static final String FURK_FURKOFF_TAG = "FURKOFF";
+    public static final String FURK_DRUMPF_TAG = "DRUMPF";
 
     //API RESPONSE KEYS
 

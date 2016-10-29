@@ -37,6 +37,7 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.satiate.flyingfurk.FurkApplication;
 import com.satiate.flyingfurk.R;
+import com.satiate.flyingfurk.models.DrumpfQuotes;
 import com.satiate.flyingfurk.models.FurkOff;
 import com.satiate.flyingfurk.models.YesNoMaybeFurk;
 import com.satiate.flyingfurk.network.VolleyErrorHelper;
@@ -106,7 +107,8 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                         .playOn(iconView);
 
 //                makeFurkRequest();
-                makeRandomFurkOffRequest();
+//                makeRandomFurkOffRequest();
+                makeRandomDrumpfQuoteRequest();
             }
         });
 
@@ -251,7 +253,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
     private void makeFurkRequest()
     {
         makeJsonObjectRequest(FlyingFurkService.this, Request.Method.GET, Const.FURK_YESNOMAYBE_API,
-                Const.FURK_YESNOMAYBE_API_TAG, null, null);
+                Const.FURK_YESNOMAYBE_API_TAG, new HashMap<String, String>(), null);
     }
 
     private void makeRandomFurkOffRequest()
@@ -264,6 +266,12 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 
         makeJsonObjectRequest(FlyingFurkService.this, Request.Method.GET, Const.FURK_FURKOFF_BASE_API+randomFurk,
                 Const.FURK_FURKOFF_TAG, headers, null);
+    }
+
+    private void makeRandomDrumpfQuoteRequest()
+    {
+        makeJsonObjectRequest(FlyingFurkService.this, Request.Method.GET, Const.FURK_DRUMPF_BASE_API+Const.FURK_DRUMPF_RANDOM_API,
+                Const.FURK_DRUMPF_TAG, new HashMap<String, String>(), null);
     }
 
     private Notification createNotification() {
@@ -340,7 +348,6 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                                     }
                                     break;
                                 case Const.FURK_FURKOFF_TAG:
-                                    Log.d(Const.TAG, "furk lelo");
                                     try {
                                         FurkOff furkOff = new FurkOff();
 
@@ -355,6 +362,26 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                                             sendTextFurk(furkOff.getMessage());
                                         }
                                     }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+                                    break;
+                                case Const.FURK_DRUMPF_TAG:
+                                    try {
+                                        DrumpfQuotes drumpfQuotes = new DrumpfQuotes();
+
+                                        if (response.has(Const.FURK_DRUMPF_MESSAGE) &&
+                                                response.getString(Const.FURK_DRUMPF_MESSAGE) != null)
+                                        {
+                                            drumpfQuotes.setMessage(response.getString(Const.FURK_DRUMPF_MESSAGE));
+                                        }
+
+
+                                        if(drumpfQuotes.getMessage() != null && !drumpfQuotes.getMessage().trim().equalsIgnoreCase(""))
+                                        {
+                                            sendTextFurk(drumpfQuotes.getMessage()+" ~Drumpf");
+                                        }
+
+                                    }catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     break;
