@@ -44,6 +44,27 @@ public class Const {
     public static final String FURK_FURKOFF_NOFURKLOOK_API = "/look/Dude/''";
     public static final String FURK_FURKOFF_LOOKINGFORFURK_API = "/looking/''";
     public static final String FURK_FURKOFF_MAYBE_API = "/maybe/''";
+    public static final String FURK_FURKOFF_ME_API = "/me/''";
+    public static final String FURK_FURKOFF_MORNING_API = "/mornin/''";
+    public static final String FURK_FURKOFF_NO_API = "/no/''";
+    public static final String FURK_FURKOFF_NUGGET_API = "/nugget/dude/''";
+    public static final String FURK_FURKOFF_OFF_API = "/outside/Dude/''";
+    public static final String FURK_FURKOFF_FTHISSHITPARTICULAR_API = "/particular/shit/''";
+    public static final String FURK_FURKOFF_PROBLEMDUDE_API = "/problem/dude/''";
+    public static final String FURK_FURKOFF_RETARD_API = "/retard/''";
+    public static final String FURK_FURKOFF_RIDICULOUS_API = "/ridiculous/''";
+    public static final String FURK_FURKOFF_READMANUAL_API = "/rtfm/''";
+    public static final String FURK_FURKOFF_FSAKE_API = "/sake/''";
+    public static final String FURK_FURKOFF_SHAKESPEAREF_API = "/shakespeare/Dude/''";
+    public static final String FURK_FURKOFF_FTS_API = "/shit/''";
+    public static final String FURK_FURKOFF_SHUTUP_API = "/shutup/Dude/''";
+    public static final String FURK_FURKOFF_NOTASINGLEF_API = "/single/''";
+    public static final String FURK_FURKOFF_THANK_API = "/thanks/''";
+    public static final String FURK_FURKOFF_FTHAT_API = "/that/''";
+    public static final String FURK_FURKOFF_UTHINKIGIVEAF_API = "/think/Dude/''";
+    public static final String FURK_FURKOFF_THINKING_API = "/thinking/Dude/''";
+    public static final String FURK_FURKOFF_FTHIS_API = "/this/''";
+
 
 
 
