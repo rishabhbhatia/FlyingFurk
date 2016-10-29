@@ -46,6 +46,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,6 +67,8 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
     boolean mHasDoubleClicked = false;
     long lastPressTime;
 
+    private ArrayList<String> furkOffs = null;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -75,9 +78,16 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
+        if(furkOffs == null)
+        {
+            populateFurkOffsList();
+        }
+
         if (mFloatingViewManager != null) {
             return START_STICKY;
         }
+
+
 
 
         final LayoutInflater inflater = LayoutInflater.from(this);
@@ -170,6 +180,67 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
         startForeground(NOTIFICATION_ID, createNotification());
 
         return START_REDELIVER_INTENT;
+    }
+
+    private void populateFurkOffsList() {
+        furkOffs = new ArrayList<>();
+        furkOffs.add(Const.FURK_FURKOFF_ASKME_API);
+        furkOffs.add(Const.FURK_FURKOFF_AWESOME_API);
+        furkOffs.add(Const.FURK_FURKOFF_BACKOFF_API);
+        furkOffs.add(Const.FURK_FURKOFF_BASICFU_API);
+        furkOffs.add(Const.FURK_FURKOFF_BYE_API);
+        furkOffs.add(Const.FURK_FURKOFF_CHAINSAWGENTLE_API);
+        furkOffs.add(Const.FURK_FURKOFF_CHOKE_API);
+        furkOffs.add(Const.FURK_FURKOFF_COMEINORFOFF_API);
+        furkOffs.add(Const.FURK_FURKOFF_COOL_API);
+        furkOffs.add(Const.FURK_FURKOFF_CRAP_API);
+        furkOffs.add(Const.FURK_FURKOFF_DIABETES_API);
+        furkOffs.add(Const.FURK_FURKOFF_DIKBAG_API);
+        furkOffs.add(Const.FURK_FURKOFF_DOUGHNUT_API);
+        furkOffs.add(Const.FURK_FURKOFF_EMPTYHEAD_API);
+        furkOffs.add(Const.FURK_FURKOFF_EVERYONEFOFF_API);
+        furkOffs.add(Const.FURK_FURKOFF_FASCINATINGSHUTUP_API);
+        furkOffs.add(Const.FURK_FURKOFF_FEVERYTHING_API);
+        furkOffs.add(Const.FURK_FURKOFF_FFAMILY_API);
+        furkOffs.add(Const.FURK_FURKOFF_FLYING_API);
+        furkOffs.add(Const.FURK_FURKOFF_FSAKE_API);
+        furkOffs.add(Const.FURK_FURKOFF_FTHAT_API);
+        furkOffs.add(Const.FURK_FURKOFF_FTHIS_API);
+        furkOffs.add(Const.FURK_FURKOFF_FTHISSHITPARTICULAR_API);
+        furkOffs.add(Const.FURK_FURKOFF_FTS_API);
+        furkOffs.add(Const.FURK_FURKOFF_GIVEZERO_API);
+        furkOffs.add(Const.FURK_FURKOFF_HERO_API);
+        furkOffs.add(Const.FURK_FURKOFF_HORSE_API);
+        furkOffs.add(Const.FURK_FURKOFF_KEEPCALM_API);
+        furkOffs.add(Const.FURK_FURKOFF_KINGRAGE_API);
+        furkOffs.add(Const.FURK_FURKOFF_LOOKINGFORFURK_API);
+        furkOffs.add(Const.FURK_FURKOFF_MAYBE_API);
+        furkOffs.add(Const.FURK_FURKOFF_ME_API);
+        furkOffs.add(Const.FURK_FURKOFF_MEGA_API);
+        furkOffs.add(Const.FURK_FURKOFF_MORNING_API);
+        furkOffs.add(Const.FURK_FURKOFF_MYLIFE_API);
+        furkOffs.add(Const.FURK_FURKOFF_NO_API);
+        furkOffs.add(Const.FURK_FURKOFF_NOFURKLOOK_API);
+        furkOffs.add(Const.FURK_FURKOFF_NOTASINGLEF_API);
+        furkOffs.add(Const.FURK_FURKOFF_NUGGET_API);
+        furkOffs.add(Const.FURK_FURKOFF_OFF_API);
+        furkOffs.add(Const.FURK_FURKOFF_PROBLEMDUDE_API);
+        furkOffs.add(Const.FURK_FURKOFF_RAGE_API);
+        furkOffs.add(Const.FURK_FURKOFF_READMANUAL_API);
+        furkOffs.add(Const.FURK_FURKOFF_RETARD_API);
+        furkOffs.add(Const.FURK_FURKOFF_RIDICULOUS_API);
+        furkOffs.add(Const.FURK_FURKOFF_SHAKESPEAREF_API);
+        furkOffs.add(Const.FURK_FURKOFF_SHUTUP_API);
+        furkOffs.add(Const.FURK_FURKOFF_SPLAT_API);
+        furkOffs.add(Const.FURK_FURKOFF_THANK_API);
+        furkOffs.add(Const.FURK_FURKOFF_THINKING_API);
+        furkOffs.add(Const.FURK_FURKOFF_THUMBS_API);
+        furkOffs.add(Const.FURK_FURKOFF_TOO_API);
+        furkOffs.add(Const.FURK_FURKOFF_UTHINKIGIVEAF_API);
+        furkOffs.add(Const.FURK_FURKOFF_WHATTF_API);
+        furkOffs.add(Const.FURK_FURKOFF_WHYBECAUSE_API);
+        furkOffs.add(Const.FURK_FURKOFF_XMASF_API);
+        furkOffs.add(Const.FURK_FURKOFF_ZERO_API);
     }
 
     private void makeFurkRequest()

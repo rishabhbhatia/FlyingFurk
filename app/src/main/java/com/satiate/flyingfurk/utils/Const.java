@@ -76,8 +76,6 @@ public class Const {
 
 
 
-
-
     //API TAGS
     public static final String FURK_YESNOMAYBE_API_TAG = "YESNOMAYBETAG";
 
