@@ -7,7 +7,6 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -24,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -32,8 +32,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SizeReadyCallback;
 import com.bumptech.glide.request.target.Target;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
@@ -261,6 +259,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     VolleyLog.d(Const.TAG, "Error: " + VolleyErrorHelper.getMessage(error, context));
+                    error.printStackTrace();
                     error = null;
                 }
             }) {
@@ -276,7 +275,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                 }
             };
 
-//                jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(2000, 0, 0f));
+                jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(5000, 0, 0f));
 
             // Adding request to request queue
             FurkApplication.getInstance().addToRequestQueue(jsonObjReq, tag);
@@ -287,7 +286,6 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
     }
 
     private void sendMessage(final YesNoMaybeFurk yesNoMaybeFurk) {
-//                Uri uri = Uri.parse("https://static.pexels.com/photos/87646/horsehead-nebula-dark-nebula-constellation-orion-87646.jpeg");
 
         Glide.with(FlyingFurkService.this).load(yesNoMaybeFurk.getImage()).asGif().listener(new RequestListener<String, GifDrawable>() {
             @Override
