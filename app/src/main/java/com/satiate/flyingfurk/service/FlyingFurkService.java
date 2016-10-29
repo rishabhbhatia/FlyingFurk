@@ -116,7 +116,9 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 //                makeRandomFurkOffRequest();
 //                makeRandomDrumpfQuoteRequest();
 //                makeRandomGiphyRequest();
-                makeRandomCatJPGRequest();
+//                makeRandomCatJPGRequest();
+                makeRandomCatPNGRequest();
+//                makeRandomCatGIFRequest();
             }
         });
 
@@ -511,14 +513,22 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                                 break;
                             case Const.FURK_CAT_PNG_TAG:
                                 try {
-
+                                    String url = getCatResponseUrl(responseObject);
+                                    if(url != null)
+                                    {
+                                        sendImageFurk(url);
+                                    }
                                 }catch (Exception e){
                                     e.printStackTrace();
                                 }
                                 break;
                             case Const.FURK_CAT_GIF_TAG:
                                 try {
-
+                                    String url = getCatResponseUrl(responseObject);
+                                    if(url != null)
+                                    {
+                                        sendGifFurk(url);
+                                    }
                                 }catch (Exception e){
                                     e.printStackTrace();
                                 }
