@@ -12,6 +12,7 @@ public class Const {
     public static final long RETROFIT_NETWORK_CALL_TIMEOUT = 60000;
 
     public static final String GIPHY_KEY = "dc6zaTOxFJmzC";
+    public static final String THE_CAT_API_KEY = "MTMyMjA4";
 
     //API CALLS
     public static final String FURK_YESNOMAYBE_API = "https://yesno.wtf/api/";
