@@ -64,6 +64,16 @@ public class Const {
     public static final String FURK_FURKOFF_UTHINKIGIVEAF_API = "/think/Dude/''";
     public static final String FURK_FURKOFF_THINKING_API = "/thinking/Dude/''";
     public static final String FURK_FURKOFF_FTHIS_API = "/this/''";
+    public static final String FURK_FURKOFF_THUMBS_API = "/thumbs/Me''";
+    public static final String FURK_FURKOFF_TOO_API = "/too/''";
+    public static final String FURK_FURKOFF_COMEINORFOFF_API = "/tucker/''";
+    public static final String FURK_FURKOFF_WHATTF_API = "/what/''";
+    public static final String FURK_FURKOFF_XMASF_API = "/xmas/dude/''";
+    public static final String FURK_FURKOFF_BASICFU_API = "/you/dude/''";
+    public static final String FURK_FURKOFF_ASKME_API = "/zayn/''";
+    public static final String FURK_FURKOFF_ZERO_API = "/zero/''";
+
+
 
 
 
