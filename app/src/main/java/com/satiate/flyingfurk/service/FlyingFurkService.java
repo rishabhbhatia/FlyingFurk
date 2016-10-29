@@ -39,6 +39,9 @@ import com.satiate.flyingfurk.FurkApplication;
 import com.satiate.flyingfurk.R;
 import com.satiate.flyingfurk.models.DrumpfQuotes;
 import com.satiate.flyingfurk.models.FurkOff;
+import com.satiate.flyingfurk.models.Giphy;
+import com.satiate.flyingfurk.models.GiphyData;
+import com.satiate.flyingfurk.models.GiphyMetadata;
 import com.satiate.flyingfurk.models.YesNoMaybeFurk;
 import com.satiate.flyingfurk.network.VolleyErrorHelper;
 import com.satiate.flyingfurk.utils.Const;
@@ -108,7 +111,8 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 
 //                makeFurkRequest();
 //                makeRandomFurkOffRequest();
-                makeRandomDrumpfQuoteRequest();
+//                makeRandomDrumpfQuoteRequest();
+                makeRandomGiphyRequest();
             }
         });
 
@@ -274,6 +278,15 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                 Const.FURK_DRUMPF_TAG, new HashMap<String, String>(), null);
     }
 
+    private void makeRandomGiphyRequest()
+    {
+        HashMap<String,String> headers = new HashMap<>();
+        headers.put("api_key", Const.GIPHY_KEY);
+
+        makeJsonObjectRequest(FlyingFurkService.this, Request.Method.GET, Const.FURK_GIPHY_BASE_API+Const.FURK_GIPHY_RANDOM_API,
+                Const.FURK_GIPHY_TAG, headers, null);
+    }
+
     private Notification createNotification() {
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setWhen(System.currentTimeMillis());
@@ -342,7 +355,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                                             yesNoMaybeFurk.setImage(response.getString(Const.FURK_YESNOMAYBE_IMAGE));
                                         }
 
-                                        sendGifFurk(yesNoMaybeFurk);
+                                        sendGifFurk(yesNoMaybeFurk.getImage());
                                     }catch (Exception e) {
                                         e.printStackTrace();
                                     }
@@ -379,6 +392,37 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                                         if(drumpfQuotes.getMessage() != null && !drumpfQuotes.getMessage().trim().equalsIgnoreCase(""))
                                         {
                                             sendTextFurk(drumpfQuotes.getMessage()+" ~Drumpf");
+                                        }
+
+                                    }catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    break;
+                                case Const.FURK_GIPHY_TAG:
+                                    try {
+                                        Giphy giphy = new Giphy();
+                                        GiphyMetadata meta = new GiphyMetadata();
+                                        GiphyData data = new GiphyData();
+
+                                        if(response.has(Const.FURK_GIPHY_METADATA) && response.getJSONObject(Const.FURK_GIPHY_METADATA) != null
+                                                && response.has(Const.FURK_GIPHY_DATA) && response.getJSONObject(Const.FURK_GIPHY_DATA) != null)
+                                        {
+                                            JSONObject metaJsonObject = response.getJSONObject(Const.FURK_GIPHY_METADATA);
+                                            JSONObject dataJsonObject = response.getJSONObject(Const.FURK_GIPHY_DATA);
+
+                                            if(metaJsonObject.has(Const.FURK_GIPHY_METADATA_STATUS) && metaJsonObject.
+                                                    getInt(Const.FURK_GIPHY_METADATA_STATUS) == 200)
+                                            {
+                                                if(dataJsonObject.has(Const.FURK_GIPHY_DATA_IMAGE_URL) && dataJsonObject.
+                                                        getString(Const.FURK_GIPHY_DATA_IMAGE_URL) != null)
+                                                {
+                                                    data.setImage_url(dataJsonObject.getString(Const.FURK_GIPHY_DATA_IMAGE_URL));
+                                                }
+
+                                                giphy.setData(data);
+
+                                                sendGifFurk(data.getImage_url());
+                                            }
                                         }
 
                                     }catch (Exception e) {
@@ -429,9 +473,9 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
         FlyingFurkService.this.startActivity(sendIntent);
     }
 
-    private void sendGifFurk(final YesNoMaybeFurk yesNoMaybeFurk) {
+    private void sendGifFurk(final String gifFurk) {
 
-        Glide.with(FlyingFurkService.this).load(yesNoMaybeFurk.getImage()).asGif().listener(new RequestListener<String, GifDrawable>() {
+        Glide.with(FlyingFurkService.this).load(gifFurk).asGif().listener(new RequestListener<String, GifDrawable>() {
             @Override
             public boolean onException(Exception e, String model, Target<GifDrawable> target, boolean isFirstResource) {
                 e.printStackTrace();
@@ -440,7 +484,6 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 
             @Override
             public boolean onResourceReady(GifDrawable resource, String model, Target<GifDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                Log.d(Const.TAG, "we got gif");
 
                 try {
                     File file = new File(getApplicationContext().getCacheDir(), "test" + ".gif");

@@ -11,6 +11,8 @@ public class Const {
 
     public static final long RETROFIT_NETWORK_CALL_TIMEOUT = 60000;
 
+    public static final String GIPHY_KEY = "dc6zaTOxFJmzC";
+
     //API CALLS
     public static final String FURK_YESNOMAYBE_API = "https://yesno.wtf/api/";
 
@@ -78,10 +80,15 @@ public class Const {
     public static final String FURK_DRUMPF_RANDOM_API = "v1/quotes/random";
 
 
+    public static final String FURK_GIPHY_BASE_API = "http://api.giphy.com/";
+    public static final String FURK_GIPHY_RANDOM_API = "v1/gifs/random?api_key=dc6zaTOxFJmzC";
+
+
     //API TAGS
     public static final String FURK_YESNOMAYBE_API_TAG = "YESNOMAYBETAG";
     public static final String FURK_FURKOFF_TAG = "FURKOFF";
     public static final String FURK_DRUMPF_TAG = "DRUMPF";
+    public static final String FURK_GIPHY_TAG = "GIPHY";
 
     //API RESPONSE KEYS
 
@@ -93,5 +100,15 @@ public class Const {
     public static final String FURK_FURKOFF_SUBTITLE = "subtitle";
 
     public static final String FURK_DRUMPF_MESSAGE = "message";
+
+    public static final String FURK_GIPHY_DATA = "data";
+    public static final String FURK_GIPHY_METADATA = "meta";
+    public static final String FURK_GIPHY_METADATA_STATUS = "status";
+    public static final String FURK_GIPHY_METADATA_MSG = "msg";
+    public static final String FURK_GIPHY_DATA_IMAGE_URL = "image_url";
+
+
+
+
 
 }
