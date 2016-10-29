@@ -14,7 +14,7 @@ public class Const {
     //API CALLS
     public static final String FURK_YESNOMAYBE_API = "https://yesno.wtf/api/";
 
-    public static final String FURK_FURKOFF_BASE_API = "http://foaas.com/";
+    public static final String FURK_FURKOFF_BASE_API = "http://foaas.com";
     public static final String FURK_FURKOFF_AWESOME_API = "/awesome/''";
     public static final String FURK_FURKOFF_BACKOFF_API = "/back/Dude/''";
     public static final String FURK_FURKOFF_DIKBAG_API = "/bag/''";
@@ -78,10 +78,14 @@ public class Const {
 
     //API TAGS
     public static final String FURK_YESNOMAYBE_API_TAG = "YESNOMAYBETAG";
+    public static final String FURK_FURKOFF_TAG = "FURKOFF";
 
-    //API KEYS
+    //API RESPONSE KEYS
+
     public static final String FURK_YESNOMAYBE_ANSWER = "answer";
     public static final String FURK_YESNOMAYBE_FORCED = "forced";
     public static final String FURK_YESNOMAYBE_IMAGE = "image";
 
+    public static final String FURK_FURKOFF_MESSAGE = "message";
+    public static final String FURK_FURKOFF_SUBTITLE = "subtitle";
 }

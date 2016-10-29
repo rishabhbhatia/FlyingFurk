@@ -37,6 +37,7 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.satiate.flyingfurk.FurkApplication;
 import com.satiate.flyingfurk.R;
+import com.satiate.flyingfurk.models.FurkOff;
 import com.satiate.flyingfurk.models.YesNoMaybeFurk;
 import com.satiate.flyingfurk.network.VolleyErrorHelper;
 import com.satiate.flyingfurk.utils.Const;
@@ -49,6 +50,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import jp.co.recruit_lifestyle.android.floatingview.FloatingViewListener;
 import jp.co.recruit_lifestyle.android.floatingview.FloatingViewManager;
@@ -103,7 +105,8 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                         .duration(3200)
                         .playOn(iconView);
 
-                makeFurkRequest();
+//                makeFurkRequest();
+                makeRandomFurkOffRequest();
             }
         });
 
@@ -182,8 +185,10 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
         return START_REDELIVER_INTENT;
     }
 
-    private void populateFurkOffsList() {
+    private void populateFurkOffsList()
+    {
         furkOffs = new ArrayList<>();
+
         furkOffs.add(Const.FURK_FURKOFF_ASKME_API);
         furkOffs.add(Const.FURK_FURKOFF_AWESOME_API);
         furkOffs.add(Const.FURK_FURKOFF_BACKOFF_API);
@@ -249,6 +254,18 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                 Const.FURK_YESNOMAYBE_API_TAG, null, null);
     }
 
+    private void makeRandomFurkOffRequest()
+    {
+        String randomFurk = furkOffs.get(new Random().nextInt(furkOffs.size()));
+        Log.d(Const.TAG, "random furk off is: "+randomFurk);
+
+        HashMap<String,String> headers = new HashMap<>();
+        headers.put("Accept", "application/json");
+
+        makeJsonObjectRequest(FlyingFurkService.this, Request.Method.GET, Const.FURK_FURKOFF_BASE_API+randomFurk,
+                Const.FURK_FURKOFF_TAG, headers, null);
+    }
+
     private Notification createNotification() {
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setWhen(System.currentTimeMillis());
@@ -283,7 +300,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
     }
 
     public void makeJsonObjectRequest(final Context context, int method, final String reqUrl, final String tag,
-                                      final HashMap<String, String> params, JSONObject jsonObject)
+                                      final HashMap<String, String> headers, JSONObject jsonObject)
     {
         try {
 
@@ -317,8 +334,27 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                                             yesNoMaybeFurk.setImage(response.getString(Const.FURK_YESNOMAYBE_IMAGE));
                                         }
 
-                                        sendMessage(yesNoMaybeFurk);
+                                        sendGifFurk(yesNoMaybeFurk);
                                     }catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    break;
+                                case Const.FURK_FURKOFF_TAG:
+                                    Log.d(Const.TAG, "furk lelo");
+                                    try {
+                                        FurkOff furkOff = new FurkOff();
+
+                                        if (response.has(Const.FURK_FURKOFF_MESSAGE) &&
+                                                response.getString(Const.FURK_FURKOFF_MESSAGE) != null)
+                                        {
+                                            furkOff.setMessage(response.getString(Const.FURK_FURKOFF_MESSAGE));
+                                        }
+
+                                        if(furkOff.getMessage() != null && !furkOff.getMessage().trim().equalsIgnoreCase(""))
+                                        {
+                                            sendTextFurk(furkOff.getMessage());
+                                        }
+                                    }catch (Exception e){
                                         e.printStackTrace();
                                     }
                                     break;
@@ -336,17 +372,16 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
             }) {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> headerMap = new HashMap<>();
-                    return headerMap;
+                    return headers;
                 }
 
                 @Override
                 protected Map<String, String> getParams() {
-                    return params;
+                    return headers;
                 }
             };
 
-                jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(5000, 0, 0f));
+            jsonObjReq.setRetryPolicy(new DefaultRetryPolicy(5000, 0, 0f));
 
             // Adding request to request queue
             FurkApplication.getInstance().addToRequestQueue(jsonObjReq, tag);
@@ -356,7 +391,18 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
         }
     }
 
-    private void sendMessage(final YesNoMaybeFurk yesNoMaybeFurk) {
+    private void sendTextFurk(String furk)
+    {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        sendIntent.setPackage("com.whatsapp");
+        sendIntent.putExtra(Intent.EXTRA_TEXT, furk);
+        sendIntent.setType("text/plain");
+        FlyingFurkService.this.startActivity(sendIntent);
+    }
+
+    private void sendGifFurk(final YesNoMaybeFurk yesNoMaybeFurk) {
 
         Glide.with(FlyingFurkService.this).load(yesNoMaybeFurk.getImage()).asGif().listener(new RequestListener<String, GifDrawable>() {
             @Override
@@ -383,8 +429,8 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                     sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     sendIntent.setPackage("com.facebook.orca");
-                    //TODO text doesn't work
-                    sendIntent.putExtra(Intent.EXTRA_TEXT, yesNoMaybeFurk.getAnswer());
+                    //TODO text doesn't work when sending image
+//                    sendIntent.putExtra(Intent.EXTRA_TEXT, yesNoMaybeFurk.getAnswer());
                     sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
                     sendIntent.setType("image/gif");
                     FlyingFurkService.this.startActivity(sendIntent);
@@ -396,26 +442,6 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
             }
         }).into(200, 200);
 
-       /* try {
-            File file = new File(getApplicationContext().getCacheDir(), "test" + ".gif");
-
-            FileOutputStream fOut = new FileOutputStream(file);
-            fOut.write();
-            fOut.close();
-
-            file.setReadable(true, false);
-
-            Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            sendIntent.setPackage("com.facebook.orca");
-            sendIntent.putExtra(Intent.EXTRA_TEXT, yesNoMaybeFurk.getAnswer());
-            sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
-            sendIntent.setType("image/jpeg");
-            FlyingFurkService.this.startActivity(sendIntent);
-        }catch (Exception e){
-            e.printStackTrace();
-        }*/
     }
 
     private String saveToInternalStorage(Bitmap bitmapImage)

@@ -4,7 +4,7 @@ package com.satiate.flyingfurk.models;
  * Created by Rishabh Bhatia on 28/10/16.
  */
 
-public class FurkResponse {
+public class FurkOff {
 
     private String message;
     private String  subtitle;
