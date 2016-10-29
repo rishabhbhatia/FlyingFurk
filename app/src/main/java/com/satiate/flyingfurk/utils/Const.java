@@ -74,6 +74,8 @@ public class Const {
     public static final String FURK_FURKOFF_ZERO_API = "/zero/''";
 
 
+    public static final String FURK_DRUMPF_BASE_API = "https://api.whatdoestrumpthink.com/api/";
+    public static final String FURK_DRUMPF_RANDOM_API = "v1/quotes/random";
 
 
     //API TAGS
@@ -88,4 +90,7 @@ public class Const {
 
     public static final String FURK_FURKOFF_MESSAGE = "message";
     public static final String FURK_FURKOFF_SUBTITLE = "subtitle";
+
+    public static final String FURK_DRUMPF_MESSAGE = "message";
+
 }
