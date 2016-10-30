@@ -13,6 +13,8 @@ public class Const {
 
     public static final String GIPHY_KEY = "dc6zaTOxFJmzC";
     public static final String THE_CAT_API_KEY = "MTMyMjA4";
+    public static final String IMGUR_CLIENT_ID = "8cd6f680abf05ab";
+    public static final String IMGUR_CLIENT_KEY = "85c116775050a60a930908036e51d561af0e5742";
 
     //API CALLS
     public static final String FURK_YESNOMAYBE_API = "https://yesno.wtf/api/";
@@ -92,6 +94,8 @@ public class Const {
     public static final String FURK_CAT_RANDOM_GIF_API = "http://thecatapi.com/api/images/get?format=xml&results_per_" +
             "page=1&type=gif&api_key="+Const.THE_CAT_API_KEY;
 
+
+    public static final String FURK_IMGUR_BASE_API = "https://api.imgur.com/3/";
 
     //API TAGS
     public static final String FURK_YESNOMAYBE_API_TAG = "YESNOMAYBETAG";

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -36,6 +37,11 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.github.hiteshsondhi88.libffmpeg.ExecuteBinaryResponseHandler;
+import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
+import com.github.hiteshsondhi88.libffmpeg.LoadBinaryResponseHandler;
+import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
+import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
 import com.satiate.flyingfurk.FurkApplication;
 import com.satiate.flyingfurk.R;
 import com.satiate.flyingfurk.models.DrumpfQuotes;
@@ -75,6 +81,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
     private WindowManager windowManager;
     boolean mHasDoubleClicked = false;
     long lastPressTime;
+    private FFmpeg fFmpeg;
 
     private ArrayList<String> furkOffs = null;
 
@@ -96,9 +103,6 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
             return START_STICKY;
         }
 
-
-
-
         final LayoutInflater inflater = LayoutInflater.from(this);
         final LinearLayout linearLayout = (LinearLayout) inflater.inflate(R.layout.flying_furk, null, false);
         final ImageView iconView = (ImageView) linearLayout.findViewById(R.id.iv_throw_a_f);
@@ -112,12 +116,14 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                         .duration(3200)
                         .playOn(iconView);
 
-//                makeFurkRequest();
+                loadFFMpegBinary();
+
+//                makeYesNoMaybeFurkRequest();
 //                makeRandomFurkOffRequest();
 //                makeRandomDrumpfQuoteRequest();
-//                makeRandomGiphyRequest();
+                makeRandomGiphyRequest();
 //                makeRandomCatJPGRequest();
-                makeRandomCatPNGRequest();
+//                makeRandomCatPNGRequest();
 //                makeRandomCatGIFRequest();
             }
         });
@@ -260,7 +266,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
         furkOffs.add(Const.FURK_FURKOFF_ZERO_API);
     }
 
-    private void makeFurkRequest()
+    private void makeYesNoMaybeFurkRequest()
     {
         makeJsonObjectRequest(FlyingFurkService.this, Request.Method.GET, Const.FURK_YESNOMAYBE_API,
                 Const.FURK_YESNOMAYBE_API_TAG, new HashMap<String, String>(), null);
@@ -488,7 +494,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
     }
 
     public void makeStringRequest(final Context context, int method, final String reqUrl, final String tag,
-                                      final HashMap<String, String> headers)
+                                  final HashMap<String, String> headers)
     {
         StringRequest request = new StringRequest(method, reqUrl,
                 new Response.Listener<String>()
@@ -649,16 +655,15 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 
                     file.setReadable(true, false);
 
-                    Intent sendIntent = new Intent();
+                   /* Intent sendIntent = new Intent();
                     sendIntent.setAction(Intent.ACTION_SEND);
                     sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     sendIntent.setPackage("com.facebook.orca");
-                    //TODO text doesn't work when sending image
-//                    sendIntent.putExtra(Intent.EXTRA_TEXT, yesNoMaybeFurk.getAnswer());
                     sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
                     sendIntent.setType("image/gif");
-                    FlyingFurkService.this.startActivity(sendIntent);
+                    FlyingFurkService.this.startActivity(sendIntent);*/
+                    convertGifToVideo(file.getPath());
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -689,6 +694,84 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
             }
         }
         return directory.getAbsolutePath();
+    }
+
+    public void convertGifToVideo(String path)
+    {
+        /*String[] command = new String[]{"/system/bin/chmod", "777",
+                "/data/data/com.satiate.flyingfurk/files/ffmpeg" };
+        try {
+            Runtime.getRuntime().exec(command);
+            Log.d(Const.TAG, "command run success");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+
+
+        try {
+//            final String videoPath = path.replace(".gif",".mp4");
+            final String videoPath = Environment.getExternalStorageDirectory()+"/test.mp4";
+//            String[] cmd = {"-f", "gif", "-i", "-c:v", "libx264", "-pix", "_fmt", "yuv420p", "-movflags","+faststart",path,videoPath};
+            String[] cmd = {"-i", path, "-y", "-movflags", "faststart", "-pix_fmt", "yuv420p", "-vf",
+                    "scale=trunc(iw/2)*2:trunc(ih/2)*2", videoPath};
+
+            Log.d(Const.TAG, "video output path is: "+videoPath);
+
+            fFmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
+
+                @Override
+                public void onStart() {
+                    Log.d(Const.TAG, "video conversion started");
+                }
+
+                @Override
+                public void onProgress(String message) {}
+
+                @Override
+                public void onFailure(String message) {
+                    Log.d(Const.TAG, "failed to convert video "+message);
+                }
+
+                @Override
+                public void onSuccess(String message) {}
+
+                @Override
+                public void onFinish() {
+                    try {
+                        Log.d(Const.TAG, "file converted to mp4");
+
+                        Intent sendIntent = new Intent();
+                        sendIntent.setAction(Intent.ACTION_SEND);
+                        sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        sendIntent.setPackage("com.whatsapp");
+                        sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(videoPath));
+                        sendIntent.setType("video/mp4");
+                        FlyingFurkService.this.startActivity(sendIntent);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } catch (FFmpegCommandAlreadyRunningException e) {
+            // Handle if FFmpeg is already running
+            e.printStackTrace();
+        }
+    }
+
+    private void loadFFMpegBinary() {
+        try {
+            fFmpeg= FFmpeg.getInstance(FlyingFurkService.this);
+            fFmpeg.loadBinary(new LoadBinaryResponseHandler() {
+                @Override
+                public void onFailure() {
+                    Log.d(Const.TAG, "failed to load");
+                }
+            });
+        } catch (FFmpegNotSupportedException e) {
+            Log.d(Const.TAG, "failed to load");
+            e.printStackTrace();
+        }
     }
 
 }
