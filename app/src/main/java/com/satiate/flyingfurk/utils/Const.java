@@ -111,6 +111,7 @@ public class Const {
     public static final String FURK_CAT_JPG_TAG = "CAT_JPG";
     public static final String FURK_CAT_PNG_TAG = "CAT_PNG";
     public static final String FURK_CAT_GIF_TAG = "CAT_GIF";
+    public static final String FURK_ANDRUX_TAG = "ANDRUX_QUOTES";
 
     //API RESPONSE KEYS
 
@@ -134,6 +135,10 @@ public class Const {
     public static final String FURK_CAT_IMAGES = "images";
     public static final String FURK_CAT_IMAGE = "image";
     public static final String FURK_CAT_URL = "url";
+
+    public static final String FURK_ANDRUX_QUOTE = "quote";
+    public static final String FURK_ANDRUX_AUTHOR = "author";
+    public static final String FURK_ANDRUX_CATEGORY = "category";
 
 
 

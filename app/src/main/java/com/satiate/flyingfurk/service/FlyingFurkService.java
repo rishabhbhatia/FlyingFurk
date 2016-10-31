@@ -44,6 +44,7 @@ import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunnin
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
 import com.satiate.flyingfurk.FurkApplication;
 import com.satiate.flyingfurk.R;
+import com.satiate.flyingfurk.models.AndruxQuote;
 import com.satiate.flyingfurk.models.DrumpfQuotes;
 import com.satiate.flyingfurk.models.FurkOff;
 import com.satiate.flyingfurk.models.Giphy;
@@ -83,6 +84,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
     long lastPressTime;
     private FFmpeg fFmpeg;
 
+    private  Intent sendIntent;
     private ArrayList<String> furkOffs = null;
 
     @Nullable
@@ -125,6 +127,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 //                makeRandomCatJPGRequest();
 //                makeRandomCatPNGRequest();
 //                makeRandomCatGIFRequest();
+//                makeRandomAndruxQuotesRequest();
             }
         });
 
@@ -171,8 +174,9 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 
                         // If double click...
                         if (pressTime - lastPressTime <= 300) {
-                            createNotification();
+//                            createNotification();
                             FlyingFurkService.this.stopSelf();
+                            Log.d(Const.TAG, "service stopped");
                             mHasDoubleClicked = true;
                         } else {     // If not double click....
                             mHasDoubleClicked = false;
@@ -314,9 +318,20 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 
     private void makeRandomCatGIFRequest()
     {
-        makeStringRequest(FlyingFurkService.this, Request.Method.GET, Const.FURK_CAT_RANDOM_PNG_API,
+        makeStringRequest(FlyingFurkService.this, Request.Method.GET, Const.FURK_CAT_RANDOM_GIF_API,
                 Const.FURK_CAT_GIF_TAG, new HashMap<String, String>());
     }
+
+    private void makeRandomAndruxQuotesRequest() {
+        HashMap<String,String> headers = new HashMap<>();
+        headers.put("Accept", "application/json");
+        headers.put("X-Mashape-Key", Const.MASHAPE_KEY);
+        headers.put("Content-Type", "application/x-www-form-urlencoded");
+
+        makeJsonObjectRequest(FlyingFurkService.this, Request.Method.GET, Const.FURK_ANDRUX_FAMOUS_RANDOM_QUOTES,
+                Const.FURK_ANDRUX_TAG, headers, null);
+    }
+
 
     private Notification createNotification() {
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
@@ -332,7 +347,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
     }
 
     private void sendAFurk() {
-        Intent sendIntent = new Intent();
+        sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         sendIntent.setPackage("com.whatsapp");
@@ -460,6 +475,40 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                                         e.printStackTrace();
                                     }
                                     break;
+                                case Const.FURK_ANDRUX_TAG:
+                                    try {
+                                        AndruxQuote andruxQuote = new AndruxQuote();
+
+                                        if(response.has(Const.FURK_ANDRUX_QUOTE) && !response.isNull(Const.FURK_ANDRUX_QUOTE))
+                                        {
+                                            andruxQuote.setQuote(response.getString(Const.FURK_ANDRUX_QUOTE));
+                                        }
+
+                                        if(response.has(Const.FURK_ANDRUX_AUTHOR) && !response.isNull(Const.FURK_ANDRUX_AUTHOR))
+                                        {
+                                            andruxQuote.setAuthor(response.getString(Const.FURK_ANDRUX_AUTHOR));
+                                        }
+
+                                        if(response.has(Const.FURK_ANDRUX_CATEGORY) && !response.isNull(Const.FURK_ANDRUX_CATEGORY))
+                                        {
+                                            andruxQuote.setCategory(response.getString(Const.FURK_ANDRUX_CATEGORY));
+                                        }
+
+                                        if(andruxQuote.getQuote() != null && !andruxQuote.getQuote().trim().equalsIgnoreCase(""))
+                                        {
+                                            if(andruxQuote.getAuthor() != null && !andruxQuote.getAuthor().trim().equalsIgnoreCase(""))
+                                            {
+                                                sendTextFurk(andruxQuote.getQuote()+" -"+andruxQuote.getAuthor());
+                                            }else
+                                            {
+                                                sendTextFurk(andruxQuote.getQuote());
+                                            }
+                                        }
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+
+                                    break;
                             }
                             response = null;
                         }
@@ -585,7 +634,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 
     private void sendTextFurk(String furk)
     {
-        Intent sendIntent = new Intent();
+        sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         sendIntent.setPackage("com.whatsapp");
@@ -616,7 +665,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 
                     file.setReadable(true, false);
 
-                    Intent sendIntent = new Intent();
+                    sendIntent = new Intent();
                     sendIntent.setAction(Intent.ACTION_SEND);
                     sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -728,9 +777,10 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
                     try {
                         Log.d(Const.TAG, "file converted to mp4");
 
-                        Intent sendIntent = new Intent();
+                        sendIntent = new Intent();
                         sendIntent.setAction(Intent.ACTION_SEND);
                         sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        sendIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
                         sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         sendIntent.setPackage("com.whatsapp");
                         sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(videoPath));
