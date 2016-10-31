@@ -81,7 +81,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 
     private WindowManager windowManager;
     boolean mHasDoubleClicked = false;
-    long lastPressTime;
+    long lastPressTime = 0;
     private FFmpeg fFmpeg;
 
     private  Intent sendIntent;
@@ -173,8 +173,8 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
 
 
                         // If double click...
-                        if (pressTime - lastPressTime <= 300) {
-//                            createNotification();
+                        if (pressTime - lastPressTime <= 1000 && lastPressTime != 0) {
+                            createNotification();
                             FlyingFurkService.this.stopSelf();
                             Log.d(Const.TAG, "service stopped");
                             mHasDoubleClicked = true;
@@ -202,9 +202,9 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
         linearLayout.setOnTouchListener(touchListener);
         iconView.setOnTouchListener(touchListener);
 
-        startForeground(NOTIFICATION_ID, createNotification());
+//        startForeground(NOTIFICATION_ID, createNotification());
 
-        return START_REDELIVER_INTENT;
+        return START_NOT_STICKY;
     }
 
     private void populateFurkOffsList()
