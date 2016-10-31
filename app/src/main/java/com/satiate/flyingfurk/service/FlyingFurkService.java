@@ -102,7 +102,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
         }
 
         if (mFloatingViewManager != null) {
-            return START_STICKY;
+            return START_NOT_STICKY;
         }
 
         final LayoutInflater inflater = LayoutInflater.from(this);
