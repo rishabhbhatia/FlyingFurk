@@ -15,6 +15,7 @@ public class Const {
     public static final String THE_CAT_API_KEY = "MTMyMjA4";
     public static final String IMGUR_CLIENT_ID = "8cd6f680abf05ab";
     public static final String IMGUR_CLIENT_KEY = "85c116775050a60a930908036e51d561af0e5742";
+    public static final String MASHAPE_KEY = "715RtrCN4zmshWA7FvKAt0xhPt8hp1KevvvjsnQgy2RysGKbXX";
 
     //API CALLS
     public static final String FURK_YESNOMAYBE_API = "https://yesno.wtf/api/";
@@ -96,6 +97,11 @@ public class Const {
 
 
     public static final String FURK_IMGUR_BASE_API = "https://api.imgur.com/3/";
+
+    //this is random movie & famous quotes
+    public static final String FURK_ANDRUX_FAMOUS_RANDOM_QUOTES = "https://andruxnet-random-famous-quotes.p.mashape.com/";
+//    resp is {"quote":"A lie gets halfway around the world before the truth has a chance to get its pants on.",
+// "author":"Sir Winston Churchill","category":"Famous"}
 
     //API TAGS
     public static final String FURK_YESNOMAYBE_API_TAG = "YESNOMAYBETAG";

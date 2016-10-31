@@ -647,7 +647,7 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
             public boolean onResourceReady(GifDrawable resource, String model, Target<GifDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
 
                 try {
-                    File file = new File(getApplicationContext().getCacheDir(), "test" + ".gif");
+                    File file = new File(Environment.getExternalStorageDirectory(), FurkUtility.getCurrentTimestamp() + ".gif");
 
                     FileOutputStream fOut = new FileOutputStream(file);
                     fOut.write(resource.getData());
@@ -696,23 +696,11 @@ public class FlyingFurkService extends Service implements FloatingViewListener {
         return directory.getAbsolutePath();
     }
 
-    public void convertGifToVideo(String path)
+    public void convertGifToVideo(String gifPath)
     {
-        /*String[] command = new String[]{"/system/bin/chmod", "777",
-                "/data/data/com.satiate.flyingfurk/files/ffmpeg" };
         try {
-            Runtime.getRuntime().exec(command);
-            Log.d(Const.TAG, "command run success");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-
-
-        try {
-//            final String videoPath = path.replace(".gif",".mp4");
-            final String videoPath = Environment.getExternalStorageDirectory()+"/test.mp4";
-//            String[] cmd = {"-f", "gif", "-i", "-c:v", "libx264", "-pix", "_fmt", "yuv420p", "-movflags","+faststart",path,videoPath};
-            String[] cmd = {"-i", path, "-y", "-movflags", "faststart", "-pix_fmt", "yuv420p", "-vf",
+            final String videoPath = gifPath.replace(".gif",".mp4");
+            String[] cmd = {"-i", gifPath, "-y", "-movflags", "faststart", "-pix_fmt", "yuv420p", "-vf",
                     "scale=trunc(iw/2)*2:trunc(ih/2)*2", videoPath};
 
             Log.d(Const.TAG, "video output path is: "+videoPath);
