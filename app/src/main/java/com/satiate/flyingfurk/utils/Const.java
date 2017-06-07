@@ -16,6 +16,7 @@ public class Const {
     public static final String IMGUR_CLIENT_ID = "8cd6f680abf05ab";
     public static final String IMGUR_CLIENT_KEY = "85c116775050a60a930908036e51d561af0e5742";
     public static final String MASHAPE_KEY = "715RtrCN4zmshWA7FvKAt0xhPt8hp1KevvvjsnQgy2RysGKbXX";
+    public static final String COMIC_VINE_KEY = "a27c6e119ed480f2713663af011b725ae03b79e9";
 
     //API CALLS
     public static final String FURK_YESNOMAYBE_API = "https://yesno.wtf/api/";
